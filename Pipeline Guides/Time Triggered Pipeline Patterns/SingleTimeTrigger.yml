@@ -1,0 +1,20 @@
+resources:
+- name: trigger-every-3-minutes
+  type: time
+  source:
+    interval: 3m
+
+jobs:
+- name: run-forrest-run
+  plan:
+  - get: trigger-every-3-minutes
+    trigger: true
+  # can add other steps to run in this job
+
+- name: run-bubba-run
+  plan:
+  - get: trigger-every-3-minutes
+    trigger: true
+    passed:
+      - run-forrest-run
+  # can add other steps to run in this job

@@ -1,0 +1,78 @@
+resources:
+- name: repo
+  type: git
+  source:
+    uri: git@github.com:OlegYarmolenko/examples.git
+    branch: master
+    private_key: |
+      -----BEGIN OPENSSH PRIVATE KEY-----
+      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
+      -----END OPENSSH PRIVATE KEY-----
+jobs:
+- name: hello-world-job
+  plan:
+  - get: repo
+    trigger: true
+  - task: create-commit
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: gitea/gitea
+      inputs:
+      - name: repo
+      outputs:
+      - name: repo
+      params:
+        EMAIL: o.yrmlnko@gmail.com
+        GIT_AUTHOR_NAME: Oleh Yarmolenko
+      run:
+        path: sh
+        args:
+        - -cx
+        - |
+          cd repo
+          date +%Y-%m-%d > todays-date
+          git add ./todays-date
+          git config --global user.email $EMAIL
+          git config --global user.name $GIT_AUTHOR_NAME
+          git commit -m "Update todays date"
+  - put: repo
+    params:
+      repository: repo

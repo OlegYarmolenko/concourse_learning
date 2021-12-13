@@ -1,0 +1,12 @@
+resources:
+- name: ci
+  type: git
+  source:
+    uri: https://github.com/OlegYarmolenko/examples
+
+jobs:
+- name: the-best-job
+  plan:
+  - get: ci
+  - task: today
+    file: ci/tasks/print-date.yml

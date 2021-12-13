@@ -1,0 +1,46 @@
+jobs:
+# three pre-gate jobs
+- name: job-a
+  plan:
+  - get: my-repo
+    trigger: true
+- name: job-b
+  plan:
+  - get: my-repo
+    trigger: true
+- name: job-c
+  plan:
+  - get: my-repo
+    trigger: true
+
+- name: the-gate  # manually trigger this job
+  plan:
+  - get: my-repo
+    trigger: false
+    passed:  # fan-in from the three pre-gate jobs
+      - job-a
+      - job-b
+      - job-c
+
+# fan-out to three post-gate jobs
+- name: post-gate-job-a
+  plan:
+  - get: my-repo
+    trigger: true
+    passed: [the-gate]
+- name: post-gate-job-b
+  plan:
+  - get: my-repo
+    trigger: true
+    passed: [the-gate]
+- name: post-gate-job-c
+  plan:
+  - get: my-repo
+    trigger: true
+    passed: [the-gate]
+
+resources:
+- name: my-repo
+  type: git
+  source:
+    uri: https://github.com/OlegYarmolenko/examples.git

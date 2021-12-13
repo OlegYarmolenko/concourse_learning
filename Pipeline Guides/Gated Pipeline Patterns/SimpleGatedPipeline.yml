@@ -1,0 +1,28 @@
+jobs:
+- name: run-automatically
+  plan:
+  - get: my-repo
+    trigger: true  # has trigger:true so automatically triggers
+  # can include more steps to run other things before hitting the gate
+
+- name: the-gate  # manually trigger this job
+  plan:
+  - get: my-repo
+    trigger: false  # redundant but guarantees the job won't run automatically
+    passed:
+      - run-automatically
+
+# runs immediately after the gate is triggered
+- name: do-more-stuff-after-the-gate
+  plan:
+  - get: my-repo
+    passed:
+      - the-gate
+    trigger: true
+  # can include more steps to run other things
+
+resources:
+- name: my-repo
+  type: git
+  source:
+    uri: https://github.com/concourse/examples.git

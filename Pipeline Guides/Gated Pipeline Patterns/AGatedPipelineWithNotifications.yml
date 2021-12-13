@@ -1,0 +1,44 @@
+jobs:
+- name: build-it
+  plan:
+  - get: my-repo
+    trigger: true
+  # can add steps to build your app
+
+- name: test-it
+  plan:
+  - get: my-repo
+    trigger: true
+    passed: [build-it]
+  # can add steps to run tests
+  - put: email-release-manager
+    params:
+      subject: "Ready to ship"
+      body_text: |
+        A build is ready to be shipped!
+#        Build to be shipped: ${ATC_EXTERNAL_URL}/teams/${BUILD_TEAM_NAME}/pipelines/${BUILD_PIPELINE_NAME}/jobs/${BUILD_JOB_NAME}/builds/${BUILD_NAME}
+#        Link to pipeline: ${ATC_EXTERNAL_URL}/teams/${BUILD_TEAM_NAME}/pipelines/${BUILD_PIPELINE_NAME}
+
+- name: ship-it
+  plan:
+  - get: my-repo
+    trigger: false
+    passed: [test-it]
+
+resources:
+- name: my-repo
+  type: git
+  source:
+    uri: https://github.com/OlegYarmolenko/examples.git
+- name: email-release-manager
+  type: email
+  source:
+    # other required fields for this resource have been omitted
+    from: pipeline@example.com
+    to: o.yrmlnko@gmail.com
+
+resource_types:
+- name: email
+  type: registry-image
+  source:
+    repository: pcfseceng/email-resource

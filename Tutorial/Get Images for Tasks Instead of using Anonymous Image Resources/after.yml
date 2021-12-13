@@ -1,0 +1,21 @@
+# After - Passing Task Image as Job Inputs
+
+resources:
+- name: busybox
+  type: registry-image
+  source:
+    repository: busybox
+    username: ((docker.user))
+    password: ((docker.password))
+
+jobs:
+- name: job
+  plan:
+  - get: busybox # pass image into job
+  - task: simple-task
+    image: busybox # use image for task. Overrides anonymous image
+    config:
+      platform: linux
+      run:
+        path: echo
+        args: ["Hello world!"]

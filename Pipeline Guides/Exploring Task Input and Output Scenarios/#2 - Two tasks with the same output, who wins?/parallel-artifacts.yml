@@ -1,0 +1,95 @@
+busybox: &busybox #YAML anchor
+  type: registry-image
+  source: repository: busybox
+
+jobs:
+- name: writing-to-the-same-output-in-parallel
+  plan:
+  # running two tasks that output in parallel?!?
+  # who will win??
+  - in_parallel:
+    - task: create-the-output
+      config:
+        platform: linux
+        image_resource: *busybox
+        outputs:
+          - name: the-output
+        run:
+          path: /bin/sh
+          args:
+            - -cx
+            - |
+              ls -lah
+              date > ./the-output/file1
+    - task: also-create-the-output
+      config:
+        platform: linux
+        image_resource: *busybox
+        outputs:
+          - name: the-output
+        run:
+          path: /bin/sh
+          args:
+            - -cx
+            - |
+              ls -lah
+              date > ./the-output/file2
+  # run this job multiple times to see which
+  # previous task wins each time
+  - task: read-ouput-from-previous-step
+    config:
+      platform: linux
+      image_resource: *busybox
+      inputs:
+        - name: the-output
+      run:
+        path: /bin/sh
+        args:
+          - -cx
+          - |
+            ls -lah ./the-ouput
+            echo "Get ready to error!"
+            cat ./the-output/file1 ./the-output/file2
+
+- name: writing-to-the-same-output-serially
+  plan:
+  - task: create-the-output
+    config:
+      platform: linux
+      image_resource: *busybox
+      outputs:
+        - name: the-output
+      run:
+        path: /bin/sh
+        args:
+          - -cx
+          - |
+            ls -lah
+            date > ./the-output/file1
+  - task: also-create-the-output
+    config:
+      platform: linux
+      image_resource: *busybox
+      outputs:
+        - name: the-output
+      run:
+        path: /bin/sh
+        args:
+          - -cx
+          - |
+            ls -lah
+            date > ./the-output/file2
+  - task: read-ouput-from-previous-step
+    config:
+      platform: linux
+      image_resource: *busybox
+      inputs:
+        - name: the-output
+      run:
+        path: /bin/sh
+        args:
+          - -cx
+          - |
+            ls -lah ./the-ouput
+            echo "Get ready to error! file1 will never exist"
+            cat ./the-output/file1 ./the-output/file2

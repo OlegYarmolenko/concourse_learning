@@ -1,0 +1,46 @@
+resources:
+- name: trigger-every-4-minutes
+  type: time
+  source:
+    interval: 4m
+- name: trigger-every-10-minutes
+  type: time
+  source:
+    interval: 10m
+- name: manual-trigger
+  type: time
+  source:
+    interval: 1m
+
+jobs:
+- name: manual-trigger
+  plan:
+  - put: manual-trigger
+
+- name: run-forrest-run
+  plan:
+  - get: trigger-every-4-minutes
+    trigger: true
+  - get: trigger-every-10-minutes
+    trigger: true
+  - get: manual-trigger
+    trigger: true
+    passed:
+      - manual-trigger
+  # can add other steps to run in this job
+
+- name: run-bubba-run
+  plan:
+  - get: trigger-every-4-minutes
+    trigger: true
+    passed:
+      - run-forrest-run
+  - get: trigger-every-10-minutes
+    trigger: true
+    passed:
+      - run-forrest-run
+  - get: manual-trigger
+    trigger: true
+    passed:
+      - run-forrest-run
+  # can add other steps to run in this job

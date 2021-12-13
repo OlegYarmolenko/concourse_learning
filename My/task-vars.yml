@@ -1,0 +1,15 @@
+jobs:
+- name: task-vars
+  plan:
+  - get: ci
+  - task: override-task-vars
+    file: ci/tasks/print-var.yml
+    vars: # statically defined vars
+      my-var: "Cookies are the best"
+      second-var: "chips are a close second"
+
+resources:
+- name: ci
+  type: git
+  source:
+    uri: https://github.com/OlegYarmolenko/examples
