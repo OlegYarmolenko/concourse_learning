@@ -15,7 +15,6 @@ resources:
       branch: ((repositories.source.branch))
       private_key: |
         -----BEGIN OPENSSH PRIVATE KEY-----
-        b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
 
         -----END OPENSSH PRIVATE KEY-----
 
