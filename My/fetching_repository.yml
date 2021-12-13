@@ -1,0 +1,72 @@
+resources:
+- name: concourse-examples
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/OlegYarmolenko/examples
+
+
+resources:
+  - name: concourse-examples-vars
+    type: git
+    icon: gitlab
+    source:
+      uri: ((repositories.source.repository))
+      branch: ((repositories.source.branch))
+      private_key: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        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
+        -----END OPENSSH PRIVATE KEY-----
+
+
+jobs:
+- name: read-the-readme
+  plan:
+  - get: concourse-examples-vars
+  - task: cat-readme
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: busybox
+      inputs: # pass concourse-examples into this task step
+      - name: concourse-examples-vars
+      run:
+        path: cat
+        args: ["concourse-examples-vars/README.md"]

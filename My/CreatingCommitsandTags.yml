@@ -1,0 +1,42 @@
+resources:
+- name: repo-master
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/OlegYarmolenko/examples
+    branch: master
+
+jobs:
+- name: create-a-commit
+  plan:
+  - get: repo-master
+  - task: commit-and-tag
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: gitea/gitea # use any image that has the git cli
+      inputs:
+      - name: repo-master
+      outputs:
+      # to pass the commit to the following steps specify
+      # the "repo-master" as an output as well
+      - name: repo-master
+      run:
+        path: sh
+        args:
+        - -cx
+        # this is just a bash script
+        - |
+          cd repo-master
+          # edit a file / make a change
+          date +%Y-%m-%d > todays-date
+          git add ./todays-date
+          git commit -m "Add todays date"
+          git tag v0.1.6
+  # push commit and tag
+  - put: repo-master
+    params:
+      # specify the "repo-master" artifact as the location
+      repository: repo-master
