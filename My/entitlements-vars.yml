@@ -7,7 +7,6 @@ repositories:
   source:
     repository: git@github.com:OlegYarmolenko/examples.git
     branch: master
-   
   source-dev:
     repository: git@git.sami.int.thomsonreuters.com:data_distribution_snowflake/dds_entitlements.git
     branch: dev

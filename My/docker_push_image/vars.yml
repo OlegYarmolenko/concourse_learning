@@ -1,0 +1,5 @@
+container_registry:
+  image-repo-name: docker.io/oyrmlnko
+  registry-username: oyrmlnko
+  registry-password: f+#*^sajWk?qw2,
+  tag: sometag1

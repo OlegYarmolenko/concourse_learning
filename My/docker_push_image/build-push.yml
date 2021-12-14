@@ -1,0 +1,43 @@
+resources:
+# The repo with our Dockerfile
+- name: concourse-examples
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/OlegYarmolenko/examples
+    branch: master
+
+# Where we will push the image to
+- name: python39-image-deploy
+  type: registry-image
+  icon: docker
+  source:
+    repository: ((container_registry.image-repo-name))/simple-image
+    username: ((container_registry.registry-username))
+    password: ((container_registry.registry-password))
+    tag: ((container_registry.tag))
+
+ 
+jobs:
+- name: build-and-push
+  plan:
+  - get: concourse-examples
+  - task: build-image
+    privileged: true # oci-build-task must run in a privileged container
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: concourse/oci-build-task
+      inputs:
+      - name: concourse-examples
+      outputs:
+      - name: image
+      params:
+        CONTEXT: concourse-examples/Dockerfiles/simple
+      run: # binary used to build the image
+        path: build
+  - put: python39-image-deploy
+    params:
+      image: image/image.tar

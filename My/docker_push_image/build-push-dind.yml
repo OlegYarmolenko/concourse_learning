@@ -1,0 +1,66 @@
+var_sources:
+  - name: var-data
+    type: dummy
+    config:
+      vars:
+        terraform_version: 1.0.4
+        vault_version: 1.8.2
+resources:
+  - name: concourse
+    type: git
+    icon: git
+    source:
+      uri: https://github.com/OlegYarmolenko/examples
+      branch: master
+  - name: terraform-with-pwsh-az-cli-ubuntu
+    type: registry-image
+    icon: docker
+    source:
+      repository: ((container_registry.image-repo-name))/simple-image2
+      tag: terraform-((var-data:terraform_version))-pwsh-az-cli-ubuntu
+      username: ((container_registry.registry-username))
+      password: ((container_registry.registry-password))
+
+jobs:
+  - name: build-tools
+    serial: true
+    plan:
+      - get: concourse
+        params:
+          depth: 1
+
+      - in_parallel:
+        - task: terraform-with-azcli-pwsh-ubuntu
+          privileged: true
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source:
+                repository: karlkfi/concourse-dcind
+            inputs:
+              - name: concourse
+            outputs:
+              - name: docker-image
+            params:
+              IMAGE_REPOSITORY: local-repo
+              IMAGE_TAG: local-image
+              GIT_SSH_PRIVATE_KEY: sdfsdf
+            run:
+              path: entrypoint.sh
+              args:
+                - bash
+                - -c
+                - |
+                  BASE_DIR=$(pwd)
+                  IMG_TAG="${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+                  cd concourse/Dockerfiles/simple
+                  find .
+                  docker build . -t $IMG_TAG
+                  cd ${BASE_DIR}
+                  docker save -o docker-image/image-ubuntu.tar $IMG_TAG
+
+      - in_parallel:
+        - put: terraform-with-pwsh-az-cli-ubuntu
+          params:
+            image: docker-image/image-ubuntu.tar
