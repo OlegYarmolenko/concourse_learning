@@ -1,28 +1,27 @@
+var_sources:
+- name: vault
+  type: vault
+  config:
+    url: http://18.185.31.216:8200
+    client_token: s.A9AwQePysA9ks6MGypeb1nTC
+    path_prefix: /secret/
 resources:
 - name: concourse-examples
   type: git
   icon: github
   source:
     uri: https://github.com/OlegYarmolenko/examples
-
-
 resources:
-  - name: concourse-examples-vars
-    type: git
-    icon: gitlab
-    source:
-      uri: ((repositories.source.repository))
-      branch: ((repositories.source.branch))
-      private_key: |
-        -----BEGIN OPENSSH PRIVATE KEY-----
-
-        -----END OPENSSH PRIVATE KEY-----
-
-
+- name: repo
+  type: git
+  source:
+    uri: git@github.com:OlegYarmolenko/examples.git
+    branch: master
+    private_key: ((vault:hpg5/windows.p_key))
 jobs:
 - name: read-the-readme
   plan:
-  - get: concourse-examples-vars
+  - get: repo
   - task: cat-readme
     config:
       platform: linux
@@ -31,7 +30,7 @@ jobs:
         source:
           repository: busybox
       inputs: # pass concourse-examples into this task step
-      - name: concourse-examples-vars
+      - name: repo
       run:
         path: cat
-        args: ["concourse-examples-vars/README.md"]
+        args: ["repo/README.md"]
