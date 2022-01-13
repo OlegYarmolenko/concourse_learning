@@ -56,7 +56,7 @@ jobs:
             pwd
 
 - name: next-job-serial-true2
-  serial: false
+  serial: true
   plan:
   - get: ci
     passed:
