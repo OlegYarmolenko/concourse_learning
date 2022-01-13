@@ -63,7 +63,7 @@ jobs:
             cat ./generic-input/file
   - task: try-to-read-the-output
     input_mapping:
-      generic-input: demo-disk
+      generic-input: the-output
     config:
       platform: linux
       image_resource: *busybox
