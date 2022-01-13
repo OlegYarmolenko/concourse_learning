@@ -28,11 +28,16 @@ jobs:
       # Try removing or renaming the input to see what happens!
       inputs:
         - name: the-output
+      outputs:
+        # Concourse will make an empty dir with this name
+        # and save the contents for later steps
+        - name: the-output2
       run:
         path: /bin/sh
         args:
           - -cx
           - |
+            pwd
             ls -lah
             cat ./the-output/file
 
@@ -62,14 +67,25 @@ jobs:
     passed:
     - the-job
     trigger: true
-  - task: task-print-ls-pwd
-    config:
-      platform: linux
-      image_resource: *busybox
-      run:
-        path: /bin/sh
-        args:
-          - -cx
-          - |
-            ls -lah
-            pwd
+  - in_parallel:
+    - task: task-print-ls-pwd
+      config:
+        platform: linux
+        image_resource: *busybox
+        run:
+          path: /bin/sh
+          args:
+            - -cx
+            - |
+              ls -lah
+              pwd
+    - task: task-print-date
+      config:
+        platform: linux
+        image_resource: *busybox
+        run:
+          path: /bin/sh
+          args:
+            - -cx
+            - |
+              date
