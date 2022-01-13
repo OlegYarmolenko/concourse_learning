@@ -1,3 +1,14 @@
+# We have here a lot of examples concourse features:
+# First is using YAML anchors,
+# Second - using task config files from remote repo,
+# Third - inputs&uptputs(its just a folders actually),
+# Fourth - using vars with task files(they can replace vars in task files but not in con
+# fig which is described directly in pipe. To use vars in pipe you can use vars from 
+# var_sources),
+# Fifth - using var_sources(another way to use variables, instead of using varsfile, we 
+# can store our variables in dummy var_sources, as if its separate YAML file with vars.),
+
+
 busybox: &busybox #YAML anchor
   type: registry-image
   source:
@@ -9,11 +20,24 @@ resources:
   source:
     uri: https://github.com/OlegYarmolenko/concourse_learning
 
+var_sources:
+- name: dumb
+  type: dummy
+  config:
+    vars:
+      simple: hello!
+      user:
+        username: big
+        password: sekrit
+
 jobs:
 - name: the-job
   plan:
   - get: ci
     trigger: true
+    params:
+      ECHO_ME: "Eat your fruits"
+      ALSO_ME: "veggies"
   - task: create-one-output
     file: ci/Pipeline Guides/Exploring Task Input and Output Scenarios/#1 - Passing Inputs Between Tasks/create-one-output.yml
     vars:
@@ -62,7 +86,7 @@ jobs:
           - |
             ls -lah
             pwd
-
+            echo username: ((dumb:user.username))
 
 - name: next-job-serial-true2
   serial: true
@@ -71,11 +95,15 @@ jobs:
     passed:
     - the-job
     trigger: true
+
   - in_parallel:
     - task: task-print-ls-pwd
       config:
         platform: linux
         image_resource: *busybox
+        params:
+          ECHO_ME: "default text to echo from task config file"
+          ALSO_ME:
         run:
           path: /bin/sh
           args:
@@ -83,6 +111,7 @@ jobs:
             - |
               ls -lah
               pwd
+              echo ${ECHO_ME} and ${ALSO_ME}
     - task: task-print-date
       config:
         platform: linux

@@ -14,6 +14,8 @@ outputs:
   - name: the-output
 params:
   MY_VAR: ((my-var))
+  ECHO_ME: "default text to echo from task config file"
+  ALSO_ME:
 run:
   path: /bin/sh
   args:
@@ -23,3 +25,4 @@ run:
       date > ./the-output/file
       echo ${MY_VAR} and ((second-var))
       echo "test ==> ((second-var))"
+      echo $ECHO_ME and ${ALSO_ME}
