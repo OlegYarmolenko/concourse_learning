@@ -13,6 +13,7 @@ jobs:
 - name: the-job
   plan:
   - get: ci
+    trigger: true
   - task: create-one-output
     file: ci/Pipeline Guides/Exploring Task Input and Output Scenarios/#1 - Passing Inputs Between Tasks/create-one-output.yml
   - task: read-ouput-from-previous-step
@@ -36,6 +37,25 @@ jobs:
             cat ./the-output/file
 
 - name: next-job-serial-true
+  serial: false
+  plan:
+  - get: ci
+    passed:
+    - the-job
+    trigger: true
+  - task: task-print-ls-pwd
+    config:
+      platform: linux
+      image_resource: *busybox
+      run:
+        path: /bin/sh
+        args:
+          - -cx
+          - |
+            ls -lah
+            pwd
+
+- name: next-job-serial-true2
   serial: false
   plan:
   - get: ci
