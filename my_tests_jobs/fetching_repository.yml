@@ -1,0 +1,37 @@
+resources:
+- name: concourse-examples
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/OlegYarmolenko/examples
+
+
+resources:
+  - name: concourse-examples-vars
+    type: git
+    icon: gitlab
+    source:
+      uri: ((repositories.source.repository))
+      branch: ((repositories.source.branch))
+      private_key: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+             sfsd
+        -----END OPENSSH PRIVATE KEY-----
+
+
+jobs:
+- name: read-the-readme
+  plan:
+  - get: concourse-examples-vars
+  - task: cat-readme
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: busybox
+      inputs: # pass concourse-examples into this task step
+      - name: concourse-examples-vars
+      run:
+        path: cat
+        args: ["concourse-examples-vars/README.md"]

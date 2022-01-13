@@ -1,0 +1,112 @@
+var_sources:
+  - name: vault
+    type: vault
+    config:
+      url: https://vault.sdp.refinitiv.com
+      client_token: ((auth-token))
+      path_prefix: /concourse
+
+  - name: repository
+    type: dummy
+    config:
+      vars:
+        bams: ((vault:kv/bams))
+
+  - name: var-data
+    type: dummy
+    config:
+      vars:
+        terraform_version: 1.0.4
+        vault_version: 1.8.2
+  - name: azure
+    type: dummy
+    config:
+      vars:
+        dev-deploy: ((vault:azure-2-dev-test-rdpsnowflk-deployment/creds/azure-2-dev-test-rdpsnowflk-deployment))
+        dev-subscription: ((vault:kv/azure-2-dev-test-rdpsnowflk))
+        qa-deploy: ((vault:azure-2-qa-staging-rdpsnowflk-deployment/creds/azure-2-qa-staging-rdpsnowflk-deployment))
+        qa-subscription: ((vault:kv/azure-2-qa-staging-rdpsnowflk))
+        ppe-deploy: ((vault:azure-2-prod-beta-rdpsnowflk-deployment/creds/azure-2-prod-beta-rdpsnowflk-deployment))
+        ppe-subscription: ((vault:kv/azure-2-prod-beta-rdpsnowflk))
+        prod-deploy: ((vault:azure-2-prod-live-rdpsnowflk-deployment/creds/azure-2-prod-live-rdpsnowflk-deployment))
+        prod-subscription: ((vault:kv/azure-2-prod-live-rdpsnowflk))
+
+  - name: pipeline
+    type: dummy
+    config:
+      vars:
+        vault-addr: https://vault.sdp.refinitiv.com
+        vault-path-dev: concourse/250315/kv/azure-dev
+        vault-path-qa: concourse/250315/kv/azure-qa
+        vault-path-ppe: concourse/250315/kv/azure-ppe
+        vault-path-prod: concourse/250315/kv/azure-prod
+        bams-username: ((vault:kv/bams.username))
+        bams-password: ((vault:kv/bams.password))
+        sleep: "500"
+        schedule: 1h
+
+resources:
+  - name: concourse
+    type: git
+    icon: git
+    source:
+      uri: git@git.sami.int.thomsonreuters.com:data_distribution_snowflake/dds_sdp_devops.git
+      branch: function-app-deployment-almagest
+
+  - name: scheduler
+    type: time
+    icon: clock-outline
+    source:
+      interval: ((pipeline:schedule))
+
+  - name: final-image
+    type: registry-image
+    icon: docker
+    source:
+      repository: bams-aws.refinitiv.com:5001/a250315/docker-repo/pipeline
+      tag: centos-python-image
+      username: ((repository:bams.username))
+      password: ((repository:bams.password))
+
+jobs:
+  - name: build-tools
+    serial: true
+    plan:
+      - get: concourse
+        params:
+          depth: 1
+
+      - in_parallel:
+        - task: build-image
+          privileged: true
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source:
+                repository: karlkfi/concourse-dcind
+            inputs:
+              - name: concourse
+            outputs:
+              - name: docker-image
+            params:
+              IMAGE_REPOSITORY: local-repo
+              IMAGE_TAG: local-image
+            run:
+              path: entrypoint.sh
+              args:
+                - bash
+                - -c
+                - |
+                  BASE_DIR=$(pwd)
+                  IMG_TAG="${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+                  cd concourse/Dockerfiles/simple
+                  find .
+                  docker build . -t $IMG_TAG
+                  cd ${BASE_DIR}
+                  docker save -o docker-image/image-ubuntu.tar $IMG_TAG
+
+      - in_parallel:
+        - put: final-image
+          params:
+            image: docker-image/image-ubuntu.tar

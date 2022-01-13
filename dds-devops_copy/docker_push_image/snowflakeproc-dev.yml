@@ -1,0 +1,40 @@
+---
+
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: bams-aws.refinitiv.com:5001/a250315/docker-repo/pipeline
+    tag: centos-python-image
+    username: ((vault:kv/bams.username))
+    password: ((vault:kv/bams.password))
+
+inputs:
+  - name: cicd
+  - name: function-app
+    optional: true
+  - name: version
+    optional: true
+params:
+  snowflakeConnectionString: ((snowflakeConnectionString))
+  snowflakeUser: ((snowflakeUser))
+  snowflakePassword: ((snowflakePassword))
+  artifactVersion: ((artifactVersion))
+  exec_path: ((exec_path))
+  isSlot: ((isSlot))
+  sqlScriptsFolderOrFilesList: ((sqlScriptsFolderOrFilesList))
+run:
+  path: sh
+  args: 
+  - -exc
+  - |
+    if [ -d "version" ]
+      then
+          export artifactVersion=$(cat version/dev-version)
+      else
+         export artifactVersion=((artifactVersion))
+      fi
+
+    printenv artifactVersion
+    cd ((exec_path))
+    python3 ./deploy/deploy.py
