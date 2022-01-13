@@ -37,7 +37,7 @@ jobs:
             cat ./the-output/file
 
 - name: next-job-serial-true
-  serial: false
+  serial: true
   plan:
   - get: ci
     passed:
