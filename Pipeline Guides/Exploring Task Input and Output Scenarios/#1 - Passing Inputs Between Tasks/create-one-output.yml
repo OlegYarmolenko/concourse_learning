@@ -1,5 +1,13 @@
+# busybox: &busybox #YAML anchor
+#   type: registry-image
+#   source:
+#     repository: busybox
+
 platform: linux
-image_resource: *busybox
+image_resource:
+  type: registry-image
+  source:
+    repository: busybox
 outputs:
   # Concourse will make an empty dir with this name
   # and save the contents for later steps
