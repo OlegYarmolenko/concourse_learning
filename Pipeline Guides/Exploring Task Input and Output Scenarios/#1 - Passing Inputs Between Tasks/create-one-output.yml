@@ -1,0 +1,13 @@
+platform: linux
+image_resource: *busybox
+outputs:
+  # Concourse will make an empty dir with this name
+  # and save the contents for later steps
+  - name: the-output
+run:
+  path: /bin/sh
+  args:
+    - -cx
+    - |
+      ls -lah
+      date > ./the-output/file

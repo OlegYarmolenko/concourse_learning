@@ -1,0 +1,35 @@
+busybox: &busybox #YAML anchor
+  type: registry-image
+  source:
+    repository: busybox
+
+resources:
+- name: ci
+  type: git
+  source:
+    uri: https://github.com/OlegYarmolenko/concourse_learning
+
+jobs:
+- name: the-job
+  plan:
+  - task: create-one-output
+    file: ci/Pipeline Guides/Exploring Task Input and Output Scenarios/#1 - Passing Inputs Between Tasks/create-one-output.yml
+  - task: read-ouput-from-previous-step
+    config:
+      platform: linux
+      image_resource: *busybox
+      # You must explicitly name the inputs you expect
+      # this task to have.
+      # If you don't then outputs from previous steps
+      # will not appear in the step's container.
+      # The name must match the output from the previous step.
+      # Try removing or renaming the input to see what happens!
+      inputs:
+        - name: the-output
+      run:
+        path: /bin/sh
+        args:
+          - -cx
+          - |
+            ls -lah
+            cat ./the-output/file
