@@ -16,6 +16,9 @@ jobs:
     trigger: true
   - task: create-one-output
     file: ci/Pipeline Guides/Exploring Task Input and Output Scenarios/#1 - Passing Inputs Between Tasks/create-one-output.yml
+    vars:
+      my-var: "Cookies are the best"
+      second-var: "chips are a close second"
   - task: read-ouput-from-previous-step
     config:
       platform: linux
@@ -49,14 +52,9 @@ jobs:
     - the-job
     trigger: true
   - task: task-print-ls-pwd
-    vars:
-      my-var: "Cookies are the best"
-      second-var: "chips are a close second"
     config:
       platform: linux
       image_resource: *busybox
-      params:
-        MY_VAR: ((my-var))
       run:
         path: /bin/sh
         args:
@@ -64,7 +62,6 @@ jobs:
           - |
             ls -lah
             pwd
-            echo ${MY_VAR} and ((second-var))
 
 
 - name: next-job-serial-true2

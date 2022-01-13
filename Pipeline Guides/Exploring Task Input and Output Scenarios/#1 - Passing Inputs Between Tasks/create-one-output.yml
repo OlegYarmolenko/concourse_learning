@@ -22,3 +22,4 @@ run:
       ls -lah
       date > ./the-output/file
       echo ${MY_VAR} and ((second-var))
+      echo "test ==> ((second-var))"
