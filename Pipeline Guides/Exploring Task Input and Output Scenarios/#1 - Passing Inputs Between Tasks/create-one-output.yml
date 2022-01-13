@@ -12,6 +12,8 @@ outputs:
   # Concourse will make an empty dir with this name
   # and save the contents for later steps
   - name: the-output
+params:
+  MY_VAR: ((my-var))
 run:
   path: /bin/sh
   args:
@@ -19,3 +21,4 @@ run:
     - |
       ls -lah
       date > ./the-output/file
+      echo ${MY_VAR} and ((second-var))

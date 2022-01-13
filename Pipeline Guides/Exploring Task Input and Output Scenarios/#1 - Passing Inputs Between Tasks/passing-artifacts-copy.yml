@@ -49,9 +49,14 @@ jobs:
     - the-job
     trigger: true
   - task: task-print-ls-pwd
+    vars:
+      my-var: "Cookies are the best"
+      second-var: "chips are a close second"
     config:
       platform: linux
       image_resource: *busybox
+      params:
+        MY_VAR: ((my-var))
       run:
         path: /bin/sh
         args:
@@ -59,6 +64,8 @@ jobs:
           - |
             ls -lah
             pwd
+            echo ${MY_VAR} and ((second-var))
+
 
 - name: next-job-serial-true2
   serial: true
