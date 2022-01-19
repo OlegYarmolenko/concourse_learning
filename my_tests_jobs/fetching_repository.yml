@@ -15,7 +15,7 @@ resources:
       branch: ((repositories.source.branch))
       private_key: |
         -----BEGIN OPENSSH PRIVATE KEY-----
-             sfsd
+             qfqwfqwfqwf
         -----END OPENSSH PRIVATE KEY-----
 
 
